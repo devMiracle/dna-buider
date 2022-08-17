@@ -1,16 +1,24 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <Dna v-bind:items="items"/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import Dna from './components/Dna.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    Dna
+  },
+  data() {
+        return {
+            items: [
+              {id: 1, title: 'title', content: 'content'},
+              {id: 2, title: 'title', content: 'content'},
+              {id: 3, title: 'title', content: 'content'},
+              {id: 4, title: 'title', content: 'content'}
+            ]
+        }
+    }
 }
 </script>
 
@@ -19,7 +27,7 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  /* text-align: center; */
   color: #2c3e50;
   margin-top: 60px;
 }
