@@ -1,98 +1,57 @@
 <template>
+<div>
+    <h2>Калькулятор ДНК</h2>
+    <span>Введите последовательность нуклеотидов (состоящих из a, t, g, c символов):</span>
+    <br>
     <input type="text"
-        @input="handlerInput" 
+        v-model="textFirstChain"
     />
+    <button @click="handlerClickReset">сброс</button>
     <br>
-    <span>{{ this.textFirstChain }}</span>
+    <span>Первая цепочка: {{ this.textFirstChain }}</span>
     <br>
-    <span>{{ this.textSecondChain }}</span>
+    <span>Вторая цепочка: {{ this.textSecondChain }}</span>
     <br>
-    <span>{{ this.temperature }}</span>
-    <br>
-    <span>count A:{{ this.lengthA }}</span>
-    <br>
-    <span>count T:{{ this.lengthT }}</span>
-    <br>
-    <span>count G:{{ this.lengthG }}</span>
-    <br>
-    <span>count C:{{ this.lengthC }}</span>
+    <span>Температура плавления: {{ Math.round(this.temperature) }} °C ({{this.temperature.toFixed(4)}} °C)</span>
+    <DnaItemList 
+        v-bind:firstChain="textFirstChain"
+        v-bind:secondChain="textSecondChain"
+    />
+</div>
 </template>
 
 <script>
+import DnaItemList from '@/components/DnaItemList'
 export default {
     name: 'DnaCompnent',
     props: ['items'],
     components: {
-        
+        DnaItemList
     },
     methods: {
-        handlerInput(e) {
-            if (e.inputType == 'insertText') {
-                let dataToLower = e.data.toLowerCase()
-                if (dataToLower == "a" 
-                || dataToLower == "t"
-                || dataToLower == "g"
-                || dataToLower == "c"
-                ) {
-                    if (this.textFirstChain.length < 100) {
-                        this.textFirstChain += dataToLower
-                        switch (dataToLower) {
-                            case 'a':
-                                this.textSecondChain += 't'
-                                break;
-                            case 't':
-                                this.textSecondChain += 'a'
-                                break;
-                            case 'g':
-                                this.textSecondChain += 'c'
-                                break;
-                            case 'c':
-                                this.textSecondChain += 'g'
-                                break;
-                            default:
-                                break;
-                        }
-                        if (this.textFirstChain.length < 14) 
-                            this.calculateTemperature('first')
-                        else
-                            this.calculateTemperature('second')
-                        
-                    } else {
-                        e.target.value = this.textFirstChain
-                    }
-                } else {
-                    e.target.value = this.textFirstChain
-                }
-            } else if (e.inputType == 'deleteContentBackward') {
-                this.textFirstChain = this.textFirstChain.slice(0, -1);
-                this.textSecondChain = this.textSecondChain.slice(0, -1);
-                if (this.textFirstChain.length < 14) 
-                    this.calculateTemperature('first')
-                else
-                    this.calculateTemperature('second')
-            }
-            
-        },
         calculateTemperature(type) {
-            this.lengthA = this.textFirstChain != '' ? this.textFirstChain.match(/a/gm)?.length != undefined ? this.textFirstChain.match(/a/gm)?.length : 0 : 0
-            this.lengthT = this.textFirstChain != '' ? this.textFirstChain.match(/t/gm)?.length != undefined ? this.textFirstChain.match(/t/gm)?.length : 0 : 0
-            this.lengthG = this.textFirstChain != '' ? this.textFirstChain.match(/g/gm)?.length != undefined ? this.textFirstChain.match(/g/gm)?.length : 0 : 0
-            this.lengthC = this.textFirstChain != '' ? this.textFirstChain.match(/c/gm)?.length != undefined ? this.textFirstChain.match(/c/gm)?.length : 0 : 0
+            let countA = this.textFirstChain != '' ? this.textFirstChain.match(/A/gm)?.length != undefined ? this.textFirstChain.match(/A/gm)?.length : 0 : 0
+            let countT = this.textFirstChain != '' ? this.textFirstChain.match(/T/gm)?.length != undefined ? this.textFirstChain.match(/T/gm)?.length : 0 : 0
+            let countG = this.textFirstChain != '' ? this.textFirstChain.match(/G/gm)?.length != undefined ? this.textFirstChain.match(/G/gm)?.length : 0 : 0
+            let countC = this.textFirstChain != '' ? this.textFirstChain.match(/C/gm)?.length != undefined ? this.textFirstChain.match(/C/gm)?.length : 0 : 0
             switch (type) {
-                case 'first':
-                    this.temperature = Math.round(2 * (this.lengthA + this.lengthT) + (this.lengthG + this.lengthC) * 4)
+                case 'less':
+                    this.temperature = 2 * (countA + countT) + (countG + countC) * 4
                     break;
-                case 'second':
-                    this.temperature = Math.round(64.9 + 41 * (this.lengthG + this.lengthC - 16.4) / (this.lengthA + this.lengthT + this.lengthG + this.lengthC))
+                case 'over':
+                    this.temperature = 64.9 + 41 * (countG + countC - 16.4) / (countA + countT + countG + countC)
                     break;
                 default:
                     break;
             }
+        },
+        handlerClickReset() {
+            this.textFirstChain = ''
         }
     },
     data() {
         return {
-            d: { RED: 'red', GREEN: 'green', BLUE: 'blue' },
+            type: { LESS14DEGREES: 'less', OVER14DEGREES: 'over' },
             textFirstChain: '',
             textSecondChain: '',
             temperature: 0,
@@ -101,10 +60,37 @@ export default {
             lengthG: 0,
             lengthC: 0
         }
+    },
+    updated() {
+        this.textFirstChain = this.textFirstChain.toUpperCase()
+        if (this.textFirstChain.match(/[^atgc]/gi)) {
+            this.textFirstChain = this.textFirstChain.replace(/[^atgc]/gi ,'')
+        } else {
+            if (this.textFirstChain.length < 100) {
+                this.textSecondChain = this.textFirstChain.split('').map(element => {
+                    switch (element) {
+                        case 'A':
+                            return element.replace('A', 'T')  
+                        case 'T':
+                            return element.replace('T', 'A')  
+                        case 'G':
+                            return element.replace('G', 'C')  
+                        case 'C':
+                            return element.replace('C', 'G')  
+                        default:
+                            return
+                    } 
+                }).join('')
+                if (this.textFirstChain.length < 14) 
+                    this.calculateTemperature(this.type.LESS14DEGREES)
+                else
+                    this.calculateTemperature(this.type.OVER14DEGREES)
+            } else {
+                this.textFirstChain = this.textFirstChain.slice(0, -1)
+            }
+        }
     }
 }
-
-
 </script>
 
 <style scoped>

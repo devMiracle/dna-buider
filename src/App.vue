@@ -1,5 +1,5 @@
 <template>
-  <Dna v-bind:items="items"/>
+  <Dna/>
 </template>
 
 <script>
@@ -8,23 +8,14 @@ export default {
   name: 'App',
   components: {
     Dna
-  },
-  data() {
-        return {
-            items: [
-              {id: 1, title: 'title', content: 'content'},
-              {id: 2, title: 'title', content: 'content'},
-              {id: 3, title: 'title', content: 'content'},
-              {id: 4, title: 'title', content: 'content'}
-            ]
-        }
-    }
+  }
 }
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */
