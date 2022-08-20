@@ -18,7 +18,6 @@
                 <td class="container-td">
                     <div class="td-mod"></div>
                     <div class="td-mod"></div>
-                    <div class="td-mod"></div>
                 </td>
                 <td><DnaItem class="mirror" v-bind:revert="true" v-bind:item="secondChain[i]"/></td>
             </tr>

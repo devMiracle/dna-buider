@@ -30,10 +30,16 @@ export default {
     },
     methods: {
         calculateTemperature(type) {
-            let countA = this.textFirstChain != '' ? this.textFirstChain.match(/A/gm)?.length != undefined ? this.textFirstChain.match(/A/gm)?.length : 0 : 0
-            let countT = this.textFirstChain != '' ? this.textFirstChain.match(/T/gm)?.length != undefined ? this.textFirstChain.match(/T/gm)?.length : 0 : 0
-            let countG = this.textFirstChain != '' ? this.textFirstChain.match(/G/gm)?.length != undefined ? this.textFirstChain.match(/G/gm)?.length : 0 : 0
-            let countC = this.textFirstChain != '' ? this.textFirstChain.match(/C/gm)?.length != undefined ? this.textFirstChain.match(/C/gm)?.length : 0 : 0
+            let countA = 0
+            let countT = 0
+            let countG = 0
+            let countC = 0
+            for (let index = 0; index < this.textFirstChain.length; index++) {
+                if (this.textFirstChain[index] == 'A') countA += 1
+                if (this.textFirstChain[index] == 'T') countT += 1
+                if (this.textFirstChain[index] == 'G') countG += 1
+                if (this.textFirstChain[index] == 'C') countC += 1
+            }
             switch (type) {
                 case 'less':
                     this.temperature = 2 * (countA + countT) + (countG + countC) * 4
@@ -55,10 +61,12 @@ export default {
             textFirstChain: '',
             textSecondChain: '',
             temperature: 0,
-            lengthA: 0,
-            lengthT: 0,
-            lengthG: 0,
-            lengthC: 0
+            comparison: {
+                'A': 'T',
+                'T': 'A',
+                'G': 'C',
+                'C': 'G'
+            }
         }
     },
     updated() {
@@ -67,20 +75,9 @@ export default {
             this.textFirstChain = this.textFirstChain.replace(/[^atgc]/gi ,'')
         } else {
             if (this.textFirstChain.length < 100) {
-                this.textSecondChain = this.textFirstChain.split('').map(element => {
-                    switch (element) {
-                        case 'A':
-                            return element.replace('A', 'T')  
-                        case 'T':
-                            return element.replace('T', 'A')  
-                        case 'G':
-                            return element.replace('G', 'C')  
-                        case 'C':
-                            return element.replace('C', 'G')  
-                        default:
-                            return
-                    } 
-                }).join('')
+                this.textSecondChain = this.textFirstChain.split('').reduce((acc, element) => {
+                    if(this.comparison[element]) return acc += this.comparison[element]
+                }, '')
                 if (this.textFirstChain.length < 14) 
                     this.calculateTemperature(this.type.LESS14DEGREES)
                 else
